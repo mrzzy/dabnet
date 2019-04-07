@@ -14,11 +14,15 @@ POSENET_MODEL_ID = 101
 
 # Extract human pose features for the image at the given path
 # Returns human pose features pose_scores, keypoint_scores, keypoint_scores 
+pose_model = None # lazy load cached model
 def extract_pose(img_path):
+    global pose_model
     with tf.Session() as sess:
-        # Load model
-        model_cfg, model_outputs = posenet.load_model(POSENET_MODEL_ID, sess,
-                                                      model_dir=POSENET_MODEL_DIR)
+        # Load model if necessary
+        if not model:
+            pose_model = posenet.load_model(POSENET_MODEL_ID, sess,
+                                      model_dir=POSENET_MODEL_DIR)
+        model_cfg, model_outputs = pose_model
         output_stride = model_cfg['output_stride']
 
         # read and preproess image 
@@ -43,7 +47,6 @@ def extract_pose(img_path):
     
     
     return pose_scores, keypoint_scores, keypoint_coords
-
 
 if __name__ == "__main__":
     pose_scores, keypoint_scores, keypoint_coords = extract_pose("images/frisbee.jpg")
