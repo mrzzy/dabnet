@@ -26,4 +26,6 @@ RUN mkdir /project
 WORKDIR /project
 # Copy dependencies
 COPY deps /project/deps
+# Copy source code
+COPY src /project/src
 
