@@ -1,5 +1,5 @@
 #
-# pose.py
+# extraction.py
 # dabnet
 # Pose Feature Extraction
 #
