@@ -3,19 +3,27 @@
 # dabnet container
 #
 
-FROM tensorflow/tensorflow:2.0.0a0-py3
+FROM tensorflow/tensorflow:1.13.1-gpu-py3
 
-## Setup apt https suppport
-RUN apt-get update && apt-get install -y apt-transport-https
-
-## Install conda
-# Add conda key
-COPY conda.gpg /tmp/conda.gpg
-RUN install -o root -g root -m 644 /tmp/conda.gpg /etc/apt/trusted.gpg.d/
-# Add conda repo
-RUN bash -c 'echo "deb [arch=amd64] https://repo.anaconda.com/pkgs/misc/debrepo/conda stable main" > /etc/apt/sources.list.d/conda.list'
-# Install conda package
+## Install project dependencies 
+# install package requirements
 RUN apt-get update && apt-get install -y \
-    conda
-# remove package lists
-RUN rm -rf  /var/lib/apt/lists/*
+        libsm6 \
+        libxext6 \
+        libxrender-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install module requirements
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
+# setup environment variables
+COPY .env /tmp/.env
+RUN bash -c 'echo "source /tmp/.env" >> /etc/bash.bashrc'
+
+## Setup project directory
+RUN mkdir /project
+WORKDIR /project
+# Copy dependencies
+COPY deps /project/deps
+
