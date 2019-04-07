@@ -1,6 +1,7 @@
 #
 # Dockerfile
-# dabnet container
+# dabnet 
+# pose container
 #
 
 FROM tensorflow/tensorflow:1.13.1-gpu-py3

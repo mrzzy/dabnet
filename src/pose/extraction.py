@@ -19,7 +19,7 @@ def extract_pose(img_path):
     global pose_model
     with tf.Session() as sess:
         # Load model if necessary
-        if not model:
+        if not pose_model:
             pose_model = posenet.load_model(POSENET_MODEL_ID, sess,
                                       model_dir=POSENET_MODEL_DIR)
         model_cfg, model_outputs = pose_model
@@ -47,6 +47,7 @@ def extract_pose(img_path):
     
     
     return pose_scores, keypoint_scores, keypoint_coords
+
 
 if __name__ == "__main__":
     pose_scores, keypoint_scores, keypoint_coords = extract_pose("images/frisbee.jpg")
