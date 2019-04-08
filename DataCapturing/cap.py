@@ -29,9 +29,9 @@ while True:
         img_counter += 1
     elif k%256 == ord('p'):
         # p pressed
-        img_name = "cap{}.png, Dab not detected".format(img_counter)
+        img_name = "cap{}.png".format(img_counter)
         cv2.imwrite(os.path.join('capture/', img_name), frame)
-        print("{} written!".format(img_name))
+        print("{} written, Dab not detected!".format(img_name))
         f.write(img_name + ',' + 'no' + '\n')
         img_counter += 1
 
