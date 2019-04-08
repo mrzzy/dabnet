@@ -5,9 +5,12 @@ cam = cv2.VideoCapture(0)
 
 cv2.namedWindow("Capturing")
 
-img_counter = 0
-
 f = open('cap.csv', 'a')
+c = open('count.txt', 'r+')
+text = c.readlines()
+
+for i in (text):
+    img_counter = int(i[0])
 
 while True:
     ret, frame = cam.read()
@@ -35,7 +38,11 @@ while True:
         f.write(img_name + ',' + 'no' + '\n')
         img_counter += 1
 
+with open('count.txt', 'w') as ow:
+    ow.write(str(img_counter))
+
 f.close()
+c.close()
 
 cam.release()
 
