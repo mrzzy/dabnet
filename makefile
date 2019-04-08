@@ -8,11 +8,6 @@ MAKEFILES:=src/pose/makefile
 
 all: build 
 
-build: 
-	$(foreach MAKEFILE, $(MAKEFILES), $(MAKE) -f $(MAKEFILE) build)
-
-clean: 
-	$(foreach MAKEFILE, $(MAKEFILES), $(MAKE) -f $(MAKEFILE) clean)
-	
-
 rebuild: clean build
+
+include $(MAKEFILES)

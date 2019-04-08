@@ -6,18 +6,14 @@
 RUNTIME:=nvidia
 CONTAINER:=dabnet-pose
 
-.PHONY: all clean build rebuild purge run
+.PHONY: clean build rebuild purge run
 
-all: build run
+build:: containers/$(CONTAINER).marker
 
-build: containers/$(CONTAINER).marker
-
-clean: 
+clean::
 	-rm -f containers/$(CONTAINER).marker
 
-rebuild: clean build
-
-purge:
+purge::
 	docker rmi -f $(CONTAINER)
 
 containers/$(CONTAINER).marker:
