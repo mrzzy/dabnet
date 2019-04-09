@@ -1,0 +1,3 @@
+[submodule "deps/posenet"]
+	path = deps/posenet
+	url = https://github.com/rwightman/posenet-python.git
