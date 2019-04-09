@@ -62,5 +62,5 @@ if __name__ == "__main__":
     print("Requesting  server for human pose features for camp david statue...")
     features = request_pose(Image.open("david.jpg"))
     image = request_annotations(Image.open("david.jpg"))
-    print(image)
+    image.save("out.jpg")
     

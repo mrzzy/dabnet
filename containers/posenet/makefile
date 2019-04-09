@@ -4,7 +4,7 @@
 #
 
 RUNTIME:=nvidia
-CONTAINER:=dabnet-pose
+CONTAINER:=dabnet-posenet
 
 .PHONY: clean build rebuild purge run
 

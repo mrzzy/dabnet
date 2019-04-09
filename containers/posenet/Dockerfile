@@ -19,8 +19,7 @@ COPY containers/posenet/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
 # setup environment variables
-COPY .env /tmp/.env
-RUN bash -c 'echo "source /tmp/.env" >> /etc/bash.bashrc'
+ENV PYTHONPATH="deps/posenet/:src/:${PYTHONPATH}"
 
 ## Setup project directory
 RUN mkdir /project
@@ -34,5 +33,4 @@ COPY models /project/models
 
 # Run posenet server
 EXPOSE 8088
-CMD bash -c "source /tmp/.env && \
-    python3 src/pose/server.py"
+CMD python3 src/pose/server.py
