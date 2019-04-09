@@ -1,49 +1,63 @@
+#
+# collector.py
+# dabnet
+# data collector
+#
+
 import cv2
 import os
+import pandas as pd
+from pose.client import request_annotations
 
-cam = cv2.VideoCapture(0)
+DATASET_PATH = "data"
+DATASET_IMG_PATH = os.path.join(DATASET_PATH, "images")
 
-cv2.namedWindow("Capturing")
+# record the given frame with the given label in the dataset
+# df is dataframe that records the metadata in dataset 
+def record_frame(df, frame, label):
+    if not os.path.exists(DATASET_IMG_PATH): os.makedirs(DATASET_IMG_PATH) 
 
-f = open('cap.csv', 'a')
-c = open('count.txt', 'r+')
-text = c.readlines()
+    # commit frame to disk
+    img_idx = len(df)
+    img_name = "{}.jpg".format(img_idx)
+    img_path = os.path.join("images", img_name)
+    cv2.imwrite(img_path, frame)
+    
+    # record metadata into dataframe
+    df.loc[img_idx] = { "img_path": img_path, "label": label }
 
-for i in (text):
-    img_counter = int(i[0])
+    print("{} written, marked as {}".format(img_name, label))
 
+# setup dataframe
+columns = [ "img_path", "label" ]
+df_path = os.path.join(DATASET_PATH, "meta.csv")
+if os.path.exists(df_path):
+    df = pd.read_csv(df_path)  
+else:
+    df = pd.DataFrame(columns=columns)
+
+# Read and record images and label to build dataset
+camera = cv2.VideoCapture(0)
 while True:
-    ret, frame = cam.read()
-    cv2.imshow("Capturing", frame)
-    if not ret:
-        break
-    k = cv2.waitKey(1)
+    ret, frame = camera.read()
 
-    if k%256 == 27:
-        # ESC pressed
-        print("Escape hit, closing...")
-        break
-    elif k%256 == ord('q'):
+    cv2.imshow("Controls: q - quit, d - dab, n - not dab", frame)
+    if not ret: break
+
+    key = cv2.waitKey(1)
+    
+    if key%256 == ord('q'):
         # q pressed
-        img_name = "cap{}.png".format(img_counter)
-        cv2.imwrite(os.path.join('capture/', img_name), frame)
-        print("{} written!, Dab detected".format(img_name))
-        f.write(img_name + ',' + 'yes' + '\n')
-        img_counter += 1
-    elif k%256 == ord('p'):
-        # p pressed
-        img_name = "cap{}.png".format(img_counter)
-        cv2.imwrite(os.path.join('capture/', img_name), frame)
-        print("{} written, Dab not detected!".format(img_name))
-        f.write(img_name + ',' + 'no' + '\n')
-        img_counter += 1
-
-with open('count.txt', 'w') as ow:
-    ow.write(str(img_counter))
-
-f.close()
-c.close()
-
-cam.release()
-
+        break # stop processing
+    elif key%256 == ord('d'): # record a dab
+        record_frame(df, frame, "dab")
+    elif key%256 == ord('n'): # record not a dab
+        record_frame(df, frame, "notdab")
+    else:
+        continue
+camera.release()
 cv2.destroyAllWindows()
+    
+# Commit metadata dataframe
+if not os.path.exists(DATASET_PATH): os.makedirs(DATASET_PATH)
+df.to_csv(df_path, index=False)
