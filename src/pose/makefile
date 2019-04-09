@@ -23,6 +23,6 @@ containers/$(CONTAINER).marker:
 # Docker
 run: containers/$(CONTAINER).marker
 	-docker run $(if $(RUNTIME),--runtime=$(RUNTIME),)\
-		-u $(shell id -u):$(shell id -g) \
-		-it -v "$(CURDIR):/project" $(CONTAINER)
+		-p 8088:8088 \
+		-it -v "$(CURDIR)/src:/project/src" $(CONTAINER)
 

@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install module requirements
-COPY requirements.txt /tmp/requirements.txt
+COPY src/pose/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
 # setup environment variables
@@ -29,4 +29,10 @@ WORKDIR /project
 COPY deps /project/deps
 # Copy source code
 COPY src /project/src
+# Copy models
+COPY models /project/models
 
+# Run posenet server
+EXPOSE 8088
+CMD bash -c "source /tmp/.env && \
+    python3 src/pose/server.py"
