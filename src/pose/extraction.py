@@ -6,6 +6,7 @@
 
 import tensorflow as tf
 import posenet
+import cv2
 
 ## Constants
 POSENET_MODEL_DIR = "models/posenet"
@@ -54,14 +55,28 @@ def extract_pose(img_path):
         output_stride=output_stride,
         max_pose_detections=10,
         min_pose_score=0.25)
-
+    keypoint_coords *= output_scale
 
     return pose_scores, keypoint_scores, keypoint_coords
 
+# Annotates human pose features onto image specified by path
+# Writes annotated image to path specified by out_img_path
+def annotate_pose(img_path, out_img_path):
+    model_cfg, model_outputs, sess = load_model()
+    output_stride = model_cfg['output_stride']
 
-if __name__ == "__main__":
-    pose_scores, keypoint_scores, keypoint_coords = extract_pose("images/frisbee.jpg")
-    print("extracted features:")
-    print("pose_scores:", pose_scores.shape)
-    print("keypoint_scores:", keypoint_scores.shape)
-    print("keypoint_coords:", keypoint_coords.shape)
+    # read image
+    input_image, draw_image, output_scale = posenet.read_imgfile(
+        img_path, scale_factor=POSENET_SCALE_FACTOR, output_stride=output_stride    )
+        
+    # extract pose features
+    pose_scores, keypoint_scores, keypoint_coords = extract_pose(img_path)
+    
+    # annotate pose features onto image
+    draw_image = posenet.draw_skel_and_kp(
+        draw_image, pose_scores, keypoint_scores, keypoint_coords,
+        min_pose_score=0.25, min_part_score=0.25)
+
+    # write image to path
+    cv2.imwrite(out_img_path, draw_image)
+

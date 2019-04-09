@@ -26,7 +26,7 @@ def request_pose(image):
 
     # request server for pose feature for image
     files = {"target_image": img_buffer.getvalue()}
-    response = requests.post(f"{SERVER_URL}{api.POSE_ROUTE}", 
+    response = requests.post(f"{SERVER_URL}{api.FEATURES_ROUTE}", 
                              files=files)
     
     # extract features from server response
@@ -42,13 +42,25 @@ def request_pose(image):
 # Request pose annotations for the image at the given path
 # NOTE: only accepts jpg images
 # Returns image with annotations
-def request_annotations(img_path):
+def request_annotations(image):
+    # write image to buffer for upload
+    upload_buffer = BytesIO()
+    image.save(upload_buffer, format="jpeg")
+
     # request server for pose annotations  for image
-    files = {"target_image": open(img_path, "rb")}
-    response = requests.post(f"{SERVER_URL}{api.POSE_ROUTE}", 
+    files = {"target_image": upload_buffer.getvalue()}
+    response = requests.post(f"{SERVER_URL}{api.ANNOTATION_ROUTE}", 
                              files=files)
 
+    # read image from server response
+    img_buffer = BytesIO(response.content)
+    image = Image.open(img_buffer)
+
+    return image
+    
 if __name__ == "__main__":
     print("Requesting  server for human pose features for camp david statue...")
     features = request_pose(Image.open("david.jpg"))
-    print(features)
+    image = request_annotations(Image.open("david.jpg"))
+    print(image)
+    
