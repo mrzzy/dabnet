@@ -13,14 +13,13 @@ build:: containers/$(CONTAINER).marker
 clean::
 	-rm -f containers/$(CONTAINER).marker
 
-purge::
+purge:: clean
 	docker rmi -f $(CONTAINER)
 
 containers/$(CONTAINER).marker:
-	docker build -f src/pose/Dockerfile . -t $(CONTAINER)
+	docker build -f containers/posenet/Dockerfile . -t $(CONTAINER)
 	touch $@
 
-# Docker
 run: containers/$(CONTAINER).marker
 	-docker run $(if $(RUNTIME),--runtime=$(RUNTIME),)\
 		-p 8088:8088 \

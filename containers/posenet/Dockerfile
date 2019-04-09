@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install module requirements
-COPY src/pose/requirements.txt /tmp/requirements.txt
+COPY containers/posenet/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
 # setup environment variables

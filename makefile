@@ -3,7 +3,7 @@
 # project wide makefile
 #
 
-MAKEFILES:=src/pose/makefile
+MAKEFILES:=containers/posenet/makefile
 .PHONY: all clean build rebuild 
 
 all: build 
