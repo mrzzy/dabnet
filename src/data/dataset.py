@@ -9,8 +9,6 @@ import numpy as np
 import pandas as pd
 import cv2
 
-
-
 # Dataset path constants
 PATH = "data"
 IMG_PATH = os.path.join(PATH, "images")
