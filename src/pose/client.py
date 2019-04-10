@@ -30,7 +30,6 @@ def request_pose(image):
     # extract features from server response
     feats_buffer = BytesIO(response.content)
     with h5py.File(feats_buffer, "r") as f:
-        print("h5 keys:", f.keys())
         pose_scores = np.asarray(f[api.POSE_SCORE_FEATURE])
         keypoint_scores = np.asarray(f[api.KEYPOINT_SCORE_FEATURE])
         keypoint_points = np.asarray(f[api.KEYPOINT_POINTS_FEATURE])
