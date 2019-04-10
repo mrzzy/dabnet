@@ -9,25 +9,23 @@ import os
 import pandas as pd
 import numpy as np
 from pose.client import request_annotations
+from data import dataset
 from PIL import Image
-
-DATASET_PATH = "data"
-DATASET_IMG_PATH = os.path.join(DATASET_PATH, "images")
 
 # record the given frame with the given label in the dataset
 # df is dataframe that records the metadata in dataset 
 def record_frame(df, frame, label):
-    if not os.path.exists(DATASET_IMG_PATH): os.makedirs(DATASET_IMG_PATH) 
+    if not os.path.exists(dataset.IMG_PATH): os.makedirs(dataset.IMG_PATH)
 
     # commit frame to disk
     img_idx = len(df)
     img_name = "{}.jpg".format(img_idx)
-    img_path = os.path.join("images", img_name)
+    img_path = os.path.join(dataset.IMG_PATH, img_name)
     cv2.imwrite(img_path, frame)
     
     # record metadata into dataframe
     df.loc[img_idx] = { "img_path": img_path, "label": label }
-
+    dataset.PATH
     print("{} written, marked as {}".format(img_name, label))
 
 # Annotate the given frame with human pose annotates
@@ -41,10 +39,9 @@ def annotate_frame(frame):
     
     return annotated_frame
     
-
 # setup dataframe
 columns = [ "img_path", "label" ]
-df_path = os.path.join(DATASET_PATH, "meta.csv")
+df_path = dataset.META_PATH
 if os.path.exists(df_path):
     df = pd.read_csv(df_path)  
 else:
@@ -72,5 +69,5 @@ camera.release()
 cv2.destroyAllWindows()
     
 # Commit metadata dataframe
-if not os.path.exists(DATASET_PATH): os.makedirs(DATASET_PATH)
+if not os.path.exists(dataset.PATH): os.makedirs(dataset.PATH)
 df.to_csv(df_path, index=False)
