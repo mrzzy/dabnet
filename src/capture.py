@@ -89,9 +89,14 @@ with VideoCapture(0) as cam, \
 
         cv2.imshow(capture_window, frame)
         result, annotated_image = send_frame(settings.PREDICT_ENDPOINT, frame)
-        cv2.imshow(feature_window, annotated_image)
 
-        print(f'Is a dab? {result}')
+        # Add text for whether its a dab or not onto the annotatad image
+        text = "DAB" if result else "NOT DAB"
+        cv2.putText(annotated_image, text, (30, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    (255, 0, 0), 2)
+
+        cv2.imshow(feature_window, annotated_image)
 
         # Quit if 'q' is pressed
         c = cv2.waitKey(1)
