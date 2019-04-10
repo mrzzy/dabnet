@@ -4,28 +4,26 @@
 # posenet client
 #
 
-import h5py
 import os
+import cv2
+import h5py
 import requests
 import numpy as np
 from pose import api
-from PIL import Image
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 # Constants
 SERVER_URL = f"http://localhost:{api.SERVER_PORT}"
 
-# Request pose features for given pillow image
-# NOTE: only accepts jpg images
+# Request pose features for given image np array
 # Returns features: pose_scores, keypoint_scores, keypoint_points
 def request_pose(image):
     # write image to buffer for upload
-    img_buffer = BytesIO()
-    image.save(img_buffer, format="jpeg")
+    is_success, img_buffer = cv2.imencode(".jpg", image)
 
     # request server for pose feature for image
-    files = {"target_image": img_buffer.getvalue()}
+    files = {"target_image": img_buffer}
     response = requests.post(f"{SERVER_URL}{api.FEATURES_ROUTE}", 
                              files=files)
     
@@ -39,40 +37,29 @@ def request_pose(image):
     
     return pose_scores, keypoint_scores, keypoint_points 
     
-# Request pose annotations for the image at the given path
+# Request pose annotations for the image np array
 # Annotates image by drawing pose features on image
-# NOTE: only accepts jpg images
-# Returns image with annotations
+# Returns image (np array) with annotations
 def request_annotations(image):
     # write image to buffer for upload
-    upload_buffer = BytesIO()
-    image.save(upload_buffer, format="jpeg")
+    is_success, upload_buffer = cv2.imencode(".jpg", image)
+    assert is_success
 
     # request server for pose annotations  for image
-    files = {"target_image": upload_buffer.getvalue()}
+    files = {"target_image": upload_buffer}
     response = requests.post(f"{SERVER_URL}{api.ANNOTATION_ROUTE}", 
                              files=files)
 
     # read image from server response
     img_buffer = BytesIO(response.content)
-    image = Image.open(img_buffer)
+    img_array = np.asarray(img_buffer.getbuffer(), dtype=np.uint8)
+    image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
     return image
     
 if __name__ == "__main__":
     
     print("Requesting  server for human pose features for camp david statue...")
-    features = request_pose(Image.open("david.jpg"))
-    image = request_annotations(Image.open("david.jpg"))
-    image.save("out.jpg")
-
-    from pprint import pprint
-    pprint(features)
-
-    import pickle
-    with open('data', 'wb') as file:
-        pickle.dump(features, file)
-
-    
-    
-    
+    features = request_pose(cv2.imread("david.jpg", cv2.IMREAD_COLOR))
+    image = request_annotations(cv2.imread("david.jpg", cv2.IMREAD_COLOR))
+    cv2.imwrite("out.jpg", image)
