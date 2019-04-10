@@ -6,6 +6,7 @@ import os, json
 import client
 from model import Model
 
+import numpy as np
 import pickle
 with open('data', 'rb') as file:
     data = pickle.load(file)
@@ -22,7 +23,7 @@ app = Flask(__name__)
 @app.route('/', methods=['POST'])
 def receive_images():
     # Receive Image
-    imgs = request.files.get('images')
+    imgs = request.files.getlist('images')
     if imgs is None:
         return ('No File Sent', 404)
     
@@ -49,14 +50,22 @@ def receive_images():
     features = [data]
     print(labels)
 
+    my_model = Model.load()
+
     print(action)
-    # if action == 'train':
-    #     result = my_model.train(features, labels, **kwargs)
-    # elif action == 'evaluate':
-    #     result = my_model.evaluate(features, labels, **kwargs)
-    # elif action == 'predict':
-    #     result = my_model.predict(features, **kwargs)
-    result = None
+    if action == 'train':
+        result = my_model.train(features, labels, **kwargs)
+    elif action == 'evaluate':
+        result = my_model.evaluate(features, labels, **kwargs)
+    elif action == 'predict':
+        result = my_model.predict(features, **kwargs)
+
+    my_model.save()
+
+    print(type(result))
+    if (type(result) is np.ndarray): result = result.tolist()
+
+    print(result)
 
     return jsonify({
         'annotated_images': annotated_imgs,
@@ -64,5 +73,4 @@ def receive_images():
     })
 
 if __name__ == '__main__':
-    my_model = Model()
     app.run(debug=True)

@@ -23,12 +23,12 @@ while True:
     cv2.waitKey(1)
 
     # Send to Server
-    r = requests.post(SERVER_URL, data={'Action': 'predict'},files={'images': [frame]})
-    data = r.json()
-    annotated_images = data['annotated_images']
-    result = data['result']
-    cv2.imshow('Feature Extraction', annotated_images[0])
-    print(result[0])
+    # r = requests.post(SERVER_URL, data={'Action': 'predict'},files={'images': [frame]})
+    # data = r.json()
+    # annotated_images = data['annotated_images']
+    # result = data['result']
+    # cv2.imshow('Feature Extraction', annotated_images[0])
+    # print(result[0])
 
 cam.release()
 cv2.destroyAllWindows()
