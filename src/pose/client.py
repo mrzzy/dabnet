@@ -40,6 +40,7 @@ def request_pose(image):
     return pose_scores, keypoint_scores, keypoint_points 
     
 # Request pose annotations for the image at the given path
+# Annotates image by drawing pose features on image
 # NOTE: only accepts jpg images
 # Returns image with annotations
 def request_annotations(image):
