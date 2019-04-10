@@ -59,6 +59,7 @@ def request_annotations(image):
     return image
     
 if __name__ == "__main__":
+    
     print("Requesting  server for human pose features for camp david statue...")
     features = request_pose(Image.open("david.jpg"))
     image = request_annotations(Image.open("david.jpg"))
@@ -66,5 +67,11 @@ if __name__ == "__main__":
 
     from pprint import pprint
     pprint(features)
+
+    import pickle
+    with open('data', 'wb') as file:
+        pickle.dump(features, file)
+
+    
     
     

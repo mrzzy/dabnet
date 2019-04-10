@@ -33,8 +33,12 @@ while True:
     img = cvt_cv2_to_pil_image(frame)
 
     # Send to Server
-    r = requests.post(SERVER_URL, files={'image': img})
-    
+    r = requests.post(SERVER_URL, data={'Action': 'predict'},files={'images': [img]})
+    data = r.json()
+    annotated_images = data['annotated_images']
+    result = data['result']
+    cv2.imshow('Feature Extraction', annotated_images[0])
+    print(result[0])
 
 cam.release()
 cv2.destroyAllWindows()
