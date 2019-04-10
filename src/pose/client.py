@@ -64,4 +64,8 @@ if __name__ == "__main__":
     features = request_pose(Image.open("david.jpg"))
     image = request_annotations(Image.open("david.jpg"))
     image.save("out.jpg")
+
+    from pprint import pprint
+    pprint(features)
+    
     
