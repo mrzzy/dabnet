@@ -15,14 +15,14 @@ from multiprocessing import Pool, cpu_count
 # Dataset path constants
 PATH = "data"
 IMG_PATH = os.path.join(PATH, "images")
+CACHE_PATH = os.path.join(PATH, "cache")
 META_PATH = os.path.join(PATH, "meta.csv")
 
 
 class Dataset:
     def __init__(self):
-        images, labels, self.label_index = self.load()
-    
-
+        self.images, self.labels, self.label_index = self.load()
+        
     # Loads the dataset from disk
     # Return images, labels, label_index
     def load(self):
@@ -44,8 +44,11 @@ class Dataset:
     # returns the human readable label
     def lookup_label(self, label_idx):
         return self.label_index[label_idx]
-        
-        
+
+    # Generate expected ouputs for machine learning
+    @property
+    def generate_outputs(self):
+        return encode_one_hot(self.labels)
 
 if __name__ == "__main__":
     dataset =  Dataset()
