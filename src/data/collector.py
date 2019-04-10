@@ -7,7 +7,9 @@
 import cv2
 import os
 import pandas as pd
+import numpy as np
 from pose.client import request_annotations
+from PIL import Image
 
 DATASET_PATH = "data"
 DATASET_IMG_PATH = os.path.join(DATASET_PATH, "images")
@@ -28,6 +30,18 @@ def record_frame(df, frame, label):
 
     print("{} written, marked as {}".format(img_name, label))
 
+# Annotate the given frame with human pose annotates
+def annotate_frame(frame):
+    img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    image = Image.fromarray(img_rgb)
+        
+    annotated_image = request_annotations(image)
+    annotated_img_rgb = np.asarray(annotated_image)
+    annotated_frame = cv2.cvtColor(annotated_img_rgb, cv2.COLOR_RGB2BGR)
+    
+    return annotated_frame
+    
+
 # setup dataframe
 columns = [ "img_path", "label" ]
 df_path = os.path.join(DATASET_PATH, "meta.csv")
@@ -40,12 +54,11 @@ else:
 camera = cv2.VideoCapture(0)
 while True:
     ret, frame = camera.read()
-
-    cv2.imshow("Controls: q - quit, d - dab, n - not dab", frame)
     if not ret: break
+    annotated_frame = annotate_frame(frame)
+    cv2.imshow("Controls: q - quit, d - dab, n - not dab", annotated_frame)
 
     key = cv2.waitKey(1)
-    
     if key%256 == ord('q'):
         # q pressed
         break # stop processing
