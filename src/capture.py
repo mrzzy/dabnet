@@ -1,7 +1,9 @@
 import cv2
+import numpy as np
 import requests
+from requests_toolbelt.multipart import decoder
 
-from . import settings
+import settings
 
 
 class VideoCapture:
@@ -47,8 +49,12 @@ class CVWindow:
 
 
 def send_frame(url, frame):
+    ret, encoded_frame = cv2.imencode(".jpg", frame)
+    if not ret:
+        raise ValueError("Error encoding frame before sending to server.")
+
     file_payload = {
-        'frame': frame
+        'image': encoded_frame,
     }
 
     response = requests.post(url, files=file_payload)
@@ -58,7 +64,18 @@ def send_frame(url, frame):
         raise ValueError(f'Response status code was {response.status_code},'
                          ' not 200.')
 
-    return response.json()
+    multipart_data = decoder.MultipartDecoder.from_response(response)
+    for part in multipart_data.parts:
+        disp = part.headers[b'Content-Disposition']
+        if b'name="result"' in disp:
+            result = part.content
+        elif b'name="annotated_image"' in disp:
+            annotated_image = part.content
+            # Decode from jpeg bytes image encoding
+            annotated_image = cv2.imdecode(
+                np.frombuffer(annotated_image, np.uint8), -1)
+
+    return (result, annotated_image)
 
 
 with VideoCapture(0) as cam, \
@@ -71,13 +88,9 @@ with VideoCapture(0) as cam, \
             break
 
         cv2.imshow(capture_window, frame)
-        response_data = send_frame(settings.SERVER_URL, frame)
-
-        # Show the annotated image
-        annotated_image = response_data['annotated_image']
+        result, annotated_image = send_frame(settings.PREDICT_ENDPOINT, frame)
         cv2.imshow(feature_window, annotated_image)
 
-        result = response_data['result']
         print(f'Is a dab? {result}')
 
         # Quit if 'q' is pressed
