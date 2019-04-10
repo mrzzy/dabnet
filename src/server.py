@@ -1,76 +1,46 @@
-from flask import Flask
-from flask import request, jsonify
+import flask
+from requests_toolbelt import MultipartEncoder
 
-import os, json
-
-import client
+from pose import client
 from model import Model
 
-import numpy as np
-import pickle
-with open('data', 'rb') as file:
-    data = pickle.load(file)
 
-########################
-with open('server_config.json') as file:
-    config = json.load(file)
+app = flask.Flask(__name__)
 
-UPLOAD_PATH = config['Upload Path']
 
-app = Flask(__name__)
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Receive and validate input image
+    image = flask.request.files.get('image')
+    if image is None:
+        return ('No image sent', 400)
 
-########################
-@app.route('/', methods=['POST'])
-def receive_images():
-    # Receive Image
-    imgs = request.files.getlist('images')
-    if imgs is None:
-        return ('No File Sent', 404)
-    
-    # Get Action
-    action = request.form.get('Action')
-    if action is None:
-        return ('No Action Indicated', 404)
-
-    # Get Labels (if needed)
-    labels = request.form.getlist('Labels')
-    labels = [int(x) for x in labels]
-
-    # Get kwargs (if needed)
-    kwargs = request.form.get('kwargs')
-    if not kwargs:
-        kwargs = {}
+    # Load model
+    model = Model.load()
 
     # Feature Extraction
-    features = []
-    annotated_imgs = []
-    # for img in imgs:
-    #     features.append(client.request_post(img))
-    #     annotated_imgs.append(client.request_annotations(img))
-    features = [data]
-    print(labels)
+    # TODO: Feature extraction
 
-    my_model = Model.load()
+    # Send to Posenet
+    features = [client.request_pose(image)]
+    annotated_image = client.request_annotations(image)
 
-    print(action)
-    if action == 'train':
-        result = my_model.train(features, labels, **kwargs)
-    elif action == 'evaluate':
-        result = my_model.evaluate(features, labels, **kwargs)
-    elif action == 'predict':
-        result = my_model.predict(features, **kwargs)
+    # More Feature Extraction
+    # TODO: More feature extraction
 
-    my_model.save()
+    result = model.predict(features)
 
-    print(type(result))
-    if (type(result) is np.ndarray): result = result.tolist()
+    response_data = {
+        'annotated_image': ('annotated_image', annotated_image, 'image/jpeg'),
+        'result': result,
+    }
 
-    print(result)
+    multipart_data = MultipartEncoder(fields=response_data)
+    return flask.Response(
+        multipart_data.to_string(),
+        mimetype=multipart_data.content_type
+    )
 
-    return jsonify({
-        'annotated_images': annotated_imgs,
-        'result': result
-    })
 
 if __name__ == '__main__':
     app.run(debug=True)
