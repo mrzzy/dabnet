@@ -10,7 +10,6 @@ import pandas as pd
 import numpy as np
 from pose.client import request_annotations
 from data import dataset
-from PIL import Image
 
 # record the given frame with the given label in the dataset
 # df is dataframe that records the metadata in dataset 
@@ -30,13 +29,7 @@ def record_frame(df, frame, label):
 
 # Annotate the given frame with human pose annotates
 def annotate_frame(frame):
-    img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    image = Image.fromarray(img_rgb)
-        
-    annotated_image = request_annotations(image)
-    annotated_img_rgb = np.asarray(annotated_image)
-    annotated_frame = cv2.cvtColor(annotated_img_rgb, cv2.COLOR_RGB2BGR)
-    
+    annotated_frame = request_annotations(frame)
     return annotated_frame
     
 # setup dataframe
