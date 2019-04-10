@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 
 import requests
+import json
 
 #######################
 with open('server_config.json') as file:

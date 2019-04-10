@@ -3,8 +3,10 @@ from flask import request
 
 import os, json
 
+import client
+
 ########################
-with open('server_config.json') as file:
+with open('client_server_config.json') as file:
     config = json.load(file)
 
 UPLOAD_PATH = config['Upload Path']
@@ -18,6 +20,9 @@ def receive_images():
     img = request.files.get('image')
     if img is None:
         return ('No File Sent', 404)
+
+    features = client.request_pose(img)
+    annotated_img = client.request_annotations(img)
 
     """
     Do Feature Extraction and Stuff
