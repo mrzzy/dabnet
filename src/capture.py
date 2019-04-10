@@ -1,34 +1,58 @@
 import cv2
 
-import requests
-import json
 
-#######################
-with open('server_config.json') as file:
-    config = json.load(file)
+class VideoCapture:
+    '''Context manager for OpenCV Video Capture object
 
-SERVER_URL = f"http://{config['IP']}:{config['Port']}/"
+    This context manager calls `.release()` on the video capture resource on
+    exit.
+    '''
+    def __init__(self, *args):
+        self.video_capture_args = args
 
-########################
-cam = cv2.VideoCapture(0)
-cv2.namedWindow('Capture')
-cv2.namedWindow('Feature Extraction')
+    def __enter__(self):
+        self.resource = cv2.VideoCapture(*self.video_capture_args)
+        return self.resource
 
-while True:
-    # Capture frame-by-frame
-    ret, frame = cam.read()
-    if not ret: break
-    # Display frame
-    cv2.imshow("Capture", frame)
-    cv2.waitKey(1)
+    def __exit__(self, type, value, traceback):
+        self.resource.release()
 
-    # Send to Server
-    # r = requests.post(SERVER_URL, data={'Action': 'predict'},files={'images': [frame]})
-    # data = r.json()
-    # annotated_images = data['annotated_images']
-    # result = data['result']
-    # cv2.imshow('Feature Extraction', annotated_images[0])
-    # print(result[0])
 
-cam.release()
-cv2.destroyAllWindows()
+class CVWindow:
+    '''Context manager for OpenCV windows
+
+    This context manager destroys the window that it creates upon exit. It
+    returns the window name in `__enter__`. This means that it can be used as
+    so:
+    ```
+    >>> with CVWindow('my window name') as window_name:
+    >>>     print(window_name)
+    my window name
+    ```
+    This makes it useful for displaying frames on the window.
+    '''
+    def __init__(self, window_name):
+        self.name = window_name
+
+    def __enter__(self):
+        cv2.namedWindow(self.name)
+
+        return self.name
+
+    def __exit__(self, type, value, traceback):
+        cv2.destroyWindow(self.name)
+
+
+with VideoCapture(0) as cam, CVWindow('Capture') as window:
+    while True:
+        ret, frame = cam.read()
+
+        if not ret:
+            break
+
+        cv2.imshow(window, frame)
+
+        # Quit if 'q' is pressed
+        c = cv2.waitKey(1)
+        if 'q' == chr(c & 255):
+            break
