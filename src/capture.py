@@ -1,4 +1,7 @@
 import cv2
+import requests
+
+from . import settings
 
 
 class VideoCapture:
@@ -43,14 +46,39 @@ class CVWindow:
         cv2.destroyWindow(self.name)
 
 
-with VideoCapture(0) as cam, CVWindow('Capture') as window:
+def send_frame(url, frame):
+    file_payload = {
+        'frame': frame
+    }
+
+    response = requests.post(url, files=file_payload)
+
+    # Ensure that the status code is 200
+    if response.status_code != 200:
+        raise ValueError(f'Response status code was {response.status_code},'
+                         ' not 200.')
+
+    return response.json()
+
+
+with VideoCapture(0) as cam, \
+        CVWindow('Capture') as capture_window, \
+        CVWindow('Feature Extraction') as feature_window:
     while True:
         ret, frame = cam.read()
 
         if not ret:
             break
 
-        cv2.imshow(window, frame)
+        cv2.imshow(capture_window, frame)
+        response_data = send_frame(settings.SERVER_URL, frame)
+
+        # Show the annotated image
+        annotated_image = response_data['annotated_image']
+        cv2.imshow(feature_window, annotated_image)
+
+        result = response_data['result']
+        print(f'Is a dab? {result}')
 
         # Quit if 'q' is pressed
         c = cv2.waitKey(1)
