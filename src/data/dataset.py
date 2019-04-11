@@ -30,7 +30,6 @@ class Dataset:
         # read dataset metadata
         df = pd.read_csv(META_PATH, 
                          dtype={"img_path": str, "label": "category"})
-        df = df.sample(frac=1) # shuffle dataset
         df = df.sample(n_limit)
         # extract dataset laabels
         labels =  df.loc[:, "label"].cat.codes.values
@@ -47,12 +46,22 @@ class Dataset:
     # Prepare the dataset images and labels for machine learning
     def prepare(self):
         self.features = extract_pose_features(self.images)
-        self.labels = encode_one_hot(self.labels)
+        self.label_vectors = encode_one_hot(self.labels)
         
     # Lookup human readable version of the given integer label
     # returns the human readable label
     def lookup_label(self, label_idx):
         return self.label_index[label_idx]
+    
+    # ML inputs generated from dataset
+    @property
+    def inputs(self):
+        self.features
+
+    # ML outputs generated from dataset
+    @property
+    def outputs(self):
+        self.label_vectors
 
 if __name__ == "__main__":
     dataset =  Dataset(20)
