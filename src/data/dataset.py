@@ -104,9 +104,10 @@ class Dataset:
         with open(CACHE_DATA_PATH, "rb") as f:
             self.features = np.load(f)["features"]
 
-    # Lookup human readable version of the given integer label
+    # Lookup human readable version of the given label
     # returns the human readable label
-    def lookup_label(self, label_idx):
+    def lookup_label(self, label_vec):
+        label_idx = np.argmax(label_vec)
         return self.label_index[label_idx]
     
     # ML inputs generated from dataset
@@ -121,3 +122,4 @@ class Dataset:
 
 if __name__ == "__main__":
     dataset =  Dataset()
+    output = dataset.outputs[-1]
