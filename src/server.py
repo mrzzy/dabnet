@@ -2,11 +2,12 @@ import flask
 from requests_toolbelt import MultipartEncoder
 
 from pose import client
-from model import Model
-
+from dab import Model, DABNET_MODEL_PATH
 
 app = flask.Flask(__name__)
-
+# Load model
+model = Model.load(DABNET_MODEL_PATH)
+dataset = Dataset()
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -15,24 +16,17 @@ def predict():
     if image is None:
         return ('No image sent', 400)
 
-    # Load model
-    model = Model.load()
-
-    # Feature Extraction
-    # TODO: Feature extraction
-
     # Send to Posenet
     features = [client.request_pose(image)]
     annotated_image = client.request_annotations(image)
 
-    # More Feature Extraction
-    # TODO: More feature extraction
-
-    result = model.predict(features)
+    # preform prediction with model
+    prediction = model.predict(features)[0]
+    prediction = dataset.lookup_label(prediction)
 
     response_data = {
         'annotated_image': ('annotated_image', annotated_image, 'image/jpeg'),
-        'result': result,
+        'result': prediction,
     }
 
     multipart_data = MultipartEncoder(fields=response_data)
