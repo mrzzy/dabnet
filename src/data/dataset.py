@@ -56,12 +56,12 @@ class Dataset:
     # ML inputs generated from dataset
     @property
     def inputs(self):
-        self.features
+        return self.features
 
     # ML outputs generated from dataset
     @property
     def outputs(self):
-        self.label_vectors
+        return self.label_vectors
 
 if __name__ == "__main__":
     dataset =  Dataset(20)
