@@ -4,13 +4,19 @@
 # model.py
 #
 
+import os
 import math
+import pickle
 import numpy as np
 from data.dataset import Dataset
 from multiprocessing import Pool, cpu_count
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
+
+# Path constants
+MODELS_PATH = "models"
+DABNET_MODEL_PATH = os.path.join(MODELS_PATH, "model.pickle")
     
 # Dabnet model
 class Model:
@@ -18,13 +24,15 @@ class Model:
         self.scaler = scaler if scaler else StandardScaler()
     
         # Create model if does not already present 
-        M = 40
-        if not model: model = RandomForestClassifier(n_estimators=M,
+        if not model: 
+            M = 40
+            self.backend_model = RandomForestClassifier(n_estimators=M,
                                                      max_features=math.floor(M ** 0.5),
                                                      n_jobs=-1)
-        self.backend_model = model
-        self.has_fit = False
-        
+            self.has_fit = False
+        else:
+            self.backend_model = model
+            self.has_fit = True
     
     # Preprocess the given inputs for machine learning
     def preprocess(self, inputs):
@@ -62,10 +70,39 @@ class Model:
         
         return predictions
     
+    # Save the model to disk at the given path
+    # Overwrite existing model if already exists
+    def save(self, path):
+        # setup models directory
+        dirname = os.path.dirname(path)
+        if not os.path.exists(dirname): os.makedirs(dirname)
+        
+        # write model to disk
+        with open(path, "wb") as f:
+            pickle.dump({
+                "model": self.backend_model,
+                "scaler": self.scaler
+            }, f)
+    
+    @classmethod
+    # Loads and returns the model at the given path
+    def load(cls, path):
+        with open(path, "rb") as f:
+            contents = pickle.load(f)
+        
+        model = contents["model"]
+        scaler = contents["scaler"]
+        
+        return cls(scaler=scaler, model=model)
+    
+    
 if __name__ == "__main__":
     dataset = Dataset()
     model = Model()
     model.fit(dataset.inputs, dataset.outputs)
     predictions = model.predict(dataset.inputs)
-    predictions = [ dataset.lookup_label(p) for p in predictions ]
-    print(predictions)
+
+    model.save(DABNET_MODEL_PATH)
+    model = None
+    model = Model.load(DABNET_MODEL_PATH)
+    predictions = model.predict(dataset.inputs)
