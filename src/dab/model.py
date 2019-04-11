@@ -23,6 +23,7 @@ class Model:
                                                      max_features=math.floor(M ** 0.5),
                                                      n_jobs=-1)
         self.backend_model = model
+        self.has_fit = False
         
     
     # Preprocess the given inputs for machine learning
@@ -52,13 +53,19 @@ class Model:
         if verbose:
             print("train score:", self.backend_model.score(train_inputs, train_outputs))
             print("test score:", self.backend_model.score(test_inputs, test_outputs))
-    
+        self.has_fit = True
 
     # Predict the outputs for the given
     def predict(self, inputs):
-        pass
+        inputs = self.preprocess(inputs)
+        predictions = self.backend_model.predict(inputs)
+        
+        return predictions
     
 if __name__ == "__main__":
     dataset = Dataset()
     model = Model()
     model.fit(dataset.inputs, dataset.outputs)
+    predictions = model.predict(dataset.inputs)
+    predictions = [ dataset.lookup_label(p) for p in predictions ]
+    print(predictions)

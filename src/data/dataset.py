@@ -107,6 +107,7 @@ class Dataset:
     # Lookup human readable version of the given label
     # returns the human readable label
     def lookup_label(self, label_vec):
+        print(label_vec.shape)
         label_idx = np.argmax(label_vec)
         return self.label_index[label_idx]
     
