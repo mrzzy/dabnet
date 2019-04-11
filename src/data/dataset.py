@@ -9,9 +9,6 @@ import numpy as np
 import pandas as pd
 import cv2
 from data.preprocessing import encode_one_hot, extract_pose_features
-from multiprocessing import Pool, cpu_count
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
 # Dataset path constants
 PATH = "data"
@@ -21,10 +18,8 @@ META_PATH = os.path.join(PATH, "meta.csv")
 
 class Dataset:
     # n_limit - limits dataset size
-    # split - test train split ratio
-    def __init__(self, n_limit=None, split=0.3):
+    def __init__(self, n_limit=None):
         self.images, self.labels, self.label_index = self.load(n_limit)
-        self.split_ratio = split
         self.prepare()
 
         
