@@ -6,7 +6,7 @@
 
 import numpy as np
 import pandas as pd
-import multiprocessing
+from multiprocessing import pool, cpu_count
 
 from pose.client import request_pose
 
@@ -33,7 +33,9 @@ def flatten_features(features):
 # Extract flattened features for the given images
 # Returns extracted flattened fewatures
 def extract_pose_features(images):
-    pose_feats = [ request_pose(img) for img in images ]
+    process_pool = pool.Pool(cpu_count())
+    #pose_feats = [ request_pose(img) for img in images ]
+    pose_feats = process_pool.map(request_pose, images, chunksize=2)
     flat_pose_feats = flatten_features(pose_feats)
 
     return flat_pose_feats

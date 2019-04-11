@@ -30,7 +30,7 @@ class Dataset:
         # read dataset metadata
         df = pd.read_csv(META_PATH, 
                          dtype={"img_path": str, "label": "category"})
-        df = df.sample(n_limit)
+        if n_limit: df = df.sample(n_limit)
         # extract dataset laabels
         labels =  df.loc[:, "label"].cat.codes.values
         index = df.loc[:, "label"].cat.categories
@@ -64,4 +64,4 @@ class Dataset:
         return self.label_vectors
 
 if __name__ == "__main__":
-    dataset =  Dataset(20)
+    dataset =  Dataset()
