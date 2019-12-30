@@ -17,7 +17,7 @@ from sklearn.ensemble import RandomForestClassifier
 # Path constants
 MODELS_PATH = "models"
 DABNET_MODEL_PATH = os.path.join(MODELS_PATH, "model.pickle")
-    
+
 # Dabnet model
 class Model:
     def __init__(self, scaler=None, model=None):
@@ -89,13 +89,12 @@ class Model:
     def load(cls, path):
         with open(path, "rb") as f:
             contents = pickle.load(f)
-        
+
         model = contents["model"]
         scaler = contents["scaler"]
-        
+
         return cls(scaler=scaler, model=model)
-    
-    
+
 if __name__ == "__main__":
     dataset = Dataset()
     model = Model()
