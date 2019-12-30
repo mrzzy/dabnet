@@ -91,7 +91,7 @@ with VideoCapture(0) as cam, \
         result, annotated_image = send_frame(settings.PREDICT_ENDPOINT, frame)
 
         # Add text for whether its a dab or not onto the annotatad image
-        text = "DAB" if result else "NOT DAB"
+        text = result.decode()
         cv2.putText(annotated_image, text, (30, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (255, 0, 0), 2)

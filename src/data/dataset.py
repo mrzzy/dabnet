@@ -24,19 +24,16 @@ META_PATH = os.path.join(PATH, "meta.csv")
 class Dataset:
     # n_limit - limits dataset size
     # use_cache - load dataset from cache if possible
+    # meta_only - only load metadata not entire dataset
     # NOTE: use_cache and n_limit are mutually exclusive
-    def __init__(self, n_limit=None, use_cache=True):
-        self.load(n_limit, use_cache=True)
+    def __init__(self, n_limit=None, use_cache=True, csv_only=False):
+        self.load_meta(n_limit)
+        if not csv_only: self.load(n_limit, use_cache=True)
 
-    # Loads the dataset from disk
-    # limits dataset to  n_limit entries
-    # uses dataset cache if use_cache is true
-    # NOTE: use_cache and n_limit are mutually exclusive
-    def load(self, n_limit, use_cache=True):
-        assert not (n_limit and use_cache == True)
-
+    # Load metadata from doisk
+    def load_meta(self, n_limit):
         # read dataset metadata
-        df = pd.read_csv(META_PATH, 
+        df = pd.read_csv(META_PATH,
                          dtype={"img_path": str, "label": "category"})
         if n_limit: df = df.sample(n_limit)
         # extract dataset laabels
@@ -45,9 +42,18 @@ class Dataset:
         self.label_index = dict([ (label_idx, label_str) for label_idx, label_str in \
                             enumerate(index) ])
 
+        # read dataset images pahts
+        self.img_paths =  df.loc[:, "img_path"].values
+
+    # Loads the dataset from disk
+    # limits dataset to  n_limit entries
+    # uses dataset cache if use_cache is true
+    # NOTE: use_cache and n_limit are mutually exclusive
+    def load(self, n_limit, use_cache=True):
+        assert not (n_limit and use_cache == True)
+
         # read dataset images
-        img_paths =  df.loc[:, "img_path"].values
-        self.images = [ cv2.imread(p) for p in img_paths ]
+        self.images = [ cv2.imread(p) for p in self.img_paths ]
 
         # Prepare the dataset images and labels for machine learning
         self.label_vectors = encode_one_hot(self.labels)
@@ -74,18 +80,16 @@ class Dataset:
             # read cache checksum
             with open(CACHE_CHECKSUM_PATH, "rb") as f:
                 cache_checksum = f.read()
-            
             if not meta_checksum == cache_checksum: return False
-        
         return True
-                
+
     # Cache the dataset to disk to speed up loading
     # overwrites existing cache if present
     def save_cache(self):
         # setup cache directory
         rmtree(CACHE_PATH, ignore_errors=True)
         os.makedirs(CACHE_PATH)
-    
+
         # write cache data to disk
         with open(CACHE_DATA_PATH, "wb") as f:
             np.savez(f, features=self.features)
@@ -95,11 +99,10 @@ class Dataset:
             cache_checksum =  hashlib.sha1(meta_file.read()).digest()
         with open(CACHE_CHECKSUM_PATH, "wb") as f:
             f.write(cache_checksum)
-        
+
     # Load the dataset in the cach
     def load_cache(self):
         assert self.check_cache()
-    
         # read cache data from disk
         with open(CACHE_DATA_PATH, "rb") as f:
             self.features = np.load(f)["features"]
@@ -110,7 +113,7 @@ class Dataset:
         print(label_vec.shape)
         label_idx = np.argmax(label_vec)
         return self.label_index[label_idx]
-    
+
     # ML inputs generated from dataset
     @property
     def inputs(self):
