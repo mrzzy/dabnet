@@ -3,7 +3,9 @@
 # dabnet posenet
 #
 
+import os
 # API constants
+SERVER_HOST = os.environ.get("POSENET_HOST", "localhost")
 SERVER_PORT = 8088
 FEATURES_ROUTE = "/api/features"
 ANNOTATION_ROUTE = "/api/annotate"
