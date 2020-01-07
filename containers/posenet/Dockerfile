@@ -31,7 +31,8 @@ COPY deps /project/deps
 # Copy source code
 COPY src /project/src
 # Copy models
-COPY models /project/models
+RUN mkdir -p  /project/models
+COPY models/posenet /project/models/posenet
 
 # Run posenet server
 EXPOSE 8088

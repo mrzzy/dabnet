@@ -12,7 +12,7 @@ from data.preprocessing import extract_pose_features
 app = flask.Flask(__name__)
 # Load model
 model = Model.load(DABNET_MODEL_PATH)
-dataset = Dataset()
+dataset = Dataset(csv_only=True)
 
 @app.route('/predict', methods=['POST'])
 def predict():

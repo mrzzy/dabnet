@@ -14,7 +14,7 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 # Constants
-SERVER_URL = f"http://localhost:{api.SERVER_PORT}"
+SERVER_URL = f"http://{api.SERVER_HOST}:{api.SERVER_PORT}"
 
 # Request pose features for given image np array
 # Returns features: pose_scores, keypoint_scores, keypoint_points

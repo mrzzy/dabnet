@@ -61,8 +61,7 @@ def send_frame(url, frame):
 
     # Ensure that the status code is 200
     if response.status_code != 200:
-        raise ValueError(f'Response status code was {response.status_code},'
-                         ' not 200.')
+        raise ValueError(f'Response status code was {response.status_code}, not 200.')
 
     multipart_data = decoder.MultipartDecoder.from_response(response)
     for part in multipart_data.parts:
