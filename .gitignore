@@ -130,3 +130,11 @@ dmypy.json
 tags*
 containers/*.marker
 Session.vim
+
+# trained models
+models/
+*.pickle
+*.h5
+
+# vim sessions
+?[Ss]ession.vim
