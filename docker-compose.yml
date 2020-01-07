@@ -1,8 +1,20 @@
-version: '2.3'
+version: "2.3"
 
 services:
   posenet:
-    runtime: nvidia
+    runtime: "nvidia"
     image: mrzzy/dabnet-posenet 
+    build:
+      context: .
+      dockerfile: containers/posenet/Dockerfile
     ports:
       - "8088:8088"
+  dabnet:
+    image: mrzzy/dabnet-dabnet
+    build:
+      context: .
+      dockerfile: containers/dabnet/Dockerfile
+    environment:
+      - POSENET_HOST=posenet
+    ports:
+      - "5000:5000"

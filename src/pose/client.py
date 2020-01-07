@@ -14,7 +14,7 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 # Constants
-SERVER_URL = f"http://localhost:{api.SERVER_PORT}"
+SERVER_URL = f"http://{api.SERVER_HOST}:{api.SERVER_PORT}"
 
 # Request pose features for given image np array
 # Returns features: pose_scores, keypoint_scores, keypoint_points
@@ -30,7 +30,6 @@ def request_pose(image):
     # extract features from server response
     feats_buffer = BytesIO(response.content)
     with h5py.File(feats_buffer, "r") as f:
-        print("h5 keys:", f.keys())
         pose_scores = np.asarray(f[api.POSE_SCORE_FEATURE])
         keypoint_scores = np.asarray(f[api.KEYPOINT_SCORE_FEATURE])
         keypoint_points = np.asarray(f[api.KEYPOINT_POINTS_FEATURE])

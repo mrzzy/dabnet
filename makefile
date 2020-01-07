@@ -3,11 +3,15 @@
 # project wide makefile
 #
 
-MAKEFILES:=containers/posenet/makefile
-.PHONY: all clean build rebuild 
+.PHONY: all build run push
 
 all: build 
 
-rebuild: clean build
+build:
+	docker-compose build
 
-include $(MAKEFILES)
+run:
+	docker-compose up
+
+push:
+	docke-compose push

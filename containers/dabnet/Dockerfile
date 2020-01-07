@@ -4,13 +4,12 @@
 # dabnet container
 #
 
-ARG TF_IMG=tensorflow/tensorflow:1.13.1-gpu-py3
-FROM $TF_IMG
+FROM python:3.6
 
-## Install project dependencies 
-# install package requirements
-#RUN apt-get update && apt-get install -y 
-#    && rm -rf /var/lib/apt/lists/*
+## Install project dependencies
+# install opencv dependencies
+RUN apt-get update && apt-get install -y libopencv-dev python-opencv \
+    && rm -rf /var/lib/apt/lists/
 
 # Install module requirements
 COPY containers/dabnet/requirements.txt /tmp/requirements.txt
@@ -27,4 +26,11 @@ WORKDIR /project
 COPY src /project/src
 # Copy models
 COPY models /project/models
+COPY models/model.pickle /project/models/
+# copy dataset metadata
+RUN mkdir data
+COPY data/meta.csv data/
 
+# run dabnet server
+EXPOSE 5000
+CMD python3 src/server.py
