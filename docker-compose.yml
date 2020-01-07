@@ -14,5 +14,7 @@ services:
     build:
       context: .
       dockerfile: containers/dabnet/Dockerfile
+    environment:
+      - POSENET_HOST=posenet
     ports:
       - "5000:5000"
