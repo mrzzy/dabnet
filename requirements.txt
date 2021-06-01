@@ -5,4 +5,4 @@ numpy==1.18.1
 opencv-python==4.1.2.30
 requests==2.22.0
 requests-toolbelt==0.9.1
-urllib3==1.25.7
+urllib3==1.26.5
